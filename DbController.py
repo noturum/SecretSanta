@@ -8,7 +8,11 @@ from Strings import DB
 class Base(DeclarativeBase):
     ...
 
-
+# class Serialize(Base):
+#     __tablename__ = 'serialize'
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     chat_id = Column(Integer)
+#     args= Column(String)
 class Mail(Base):
     __tablename__ = 'mail'
 

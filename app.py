@@ -27,7 +27,7 @@ class Message:
 
     def delete_message(self,timeout=0):
         if self.__msg:
-            bot.delete_message(self.__msg.chat.id, self.__msg.id,timeout)
+            bot.delete_message(self.__msg.chat.id, self.__msg.id,timeout=timeout)
 
     def edit_message(self, text=None, keyboard=None):
         if self.__msg:
@@ -67,7 +67,7 @@ class Chat:
             self.__messages[theme]=msg
         else:
             msg.send_message(self.__id)
-            msg.delete_message(5)
+            msg.delete_message(timeout=3)
 
 
 
@@ -141,7 +141,8 @@ def main():
             case Chat.ST_HOME:
                 if message.text != '/start':
                     db.insert(Mail,uid=message.chat.id,text=message.text)
-                    chat.add_message(Message(f'Твое письмо:\n{message.text}',key_main),'mail')
+                    chat.add_message(Message(f'Твое письмо:',key_main),'body')
+                    chat.add_message(Message(f'{message.text}'),'mail')
                     chat.add_message(Message('Поздравляю! Письмо добавлено.'))
                     chat.get_message('text').delete_message()
                     db.update(User,[User.id==chat.get_user().id],isWised=True)
@@ -151,8 +152,9 @@ def main():
                     chat.add_message(Message('Напиши письмо.'),'text')
 
             case Chat.ST_EDIT:
-                chat.get_message('mail').edit_message(f'Твое письмо:\n{message.text}',key_main)
+                chat.get_message('mail').edit_message(f'{message.text}')
                 chat.add_message(Message('Письмо изменено'))
+                chat.set_state(Chat.ST_WAS_EDIT)
             case Chat.ST_WAS_EDIT :
                 if message.text==Chat.ST_WAS_EDIT:
 
