@@ -1,4 +1,5 @@
 # todo: check errors
+import sqlalchemy.sql.ddl
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, insert, delete, update
 from sqlalchemy.orm import Session, DeclarativeBase, relationship
 
@@ -40,7 +41,7 @@ class User(Base):
 
 class Database():
     def __init__(self):
-        self.__engine = create_engine(DB, echo=True)
+        self.__engine = create_engine(DB, echo=False)
         self.session = Session(self.__engine)
         Base.metadata.create_all(self.__engine)
 
@@ -51,13 +52,17 @@ class Database():
         if returning:
             returns = self.session.execute(insert(table).values(**values).returning(returning)).fetchone()
             self.session.commit()
+
             return returns
         else:
             self.session.execute(insert(table).values(**values))
             self.session.commit()
 
-    def update(self, table, filter, returning=None, **values):
-        return self.session.execute(update(table).where(*filter).values(**values).returning(returning))
+    def update(self, table, filter, returning, **values):
+        returns= self.session.execute(update(table).where(*filter).values(**values).returning(returning))
+        self.session.commit()
+        return returns
+
 
     def select(self, table, filter=(True,), count=False, one=False):
         if count:
@@ -74,3 +79,4 @@ class Database():
         else:
             self.session.query(table).filter(*filter).delete()
             self.session.commit()
+
